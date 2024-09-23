@@ -1,0 +1,6 @@
+
+# tuplas
+
+#listas
+
+#  dicionar

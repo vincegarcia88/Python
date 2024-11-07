@@ -1,0 +1,46 @@
+# Queria criar um sistema bancário
+# Quero poder criar uma conta
+# Essa conta tem de ter:
+# -> titular
+# -> nib
+# -> saldo
+# -> limite
+# -> transferências
+# -> levantamentos
+
+import os
+
+class Conta:
+    def __init__(self, titular, nib, saldo):
+        self.titular = titular
+        self.nib = 'PT50' + nib
+        self.saldo = saldo
+        self.limite = 400
+
+    def levantamento(self, valor):
+        if self.saldo >= valor:
+            self.saldo -= valor
+        else:
+            print('Saldo insuficiente...')
+
+    def mostrar_dados(self):
+        print(f'TITULAR: {self.titular}')
+        print(f'SALDO: {self.saldo}')
+        print(f'NIB: {self.nib}')
+        print(f'LIMITE: {self.limite}')
+
+contas = list()
+
+for c in range(0, 3):
+    titular = input('Titular: ')
+    nib = 'PT50' + input('NIB: ')
+    saldo = float(input('SALDO: '))
+    nova_conta = Conta(titular, nib, saldo)
+    contas.append(nova_conta)
+    os.system('cls')
+
+for c in range(0, 3):
+    contas[c].limite = 500
+    contas[c].mostrar_dados()
+    _ = input()
+    os.system('cls')

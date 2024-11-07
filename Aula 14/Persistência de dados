@@ -1,0 +1,42 @@
+import sqlite3
+
+db = 'base_teste.db'
+
+# CRIAR BASE DE DADOS E TABELA
+"""with sqlite3.connect('base_teste.db') as conn:
+    cursor = conn.cursor()
+
+    cursor.execute('''CREATE TABLE IF NOT EXISTS alunos (
+                   id INTEGER PRIMARY KEY,
+                   nome TEXT,
+                   contacto INTEGER                   
+                   )''')
+
+    conn.commit()
+
+    print(f'Dados Inseridos com Sucesso!')
+
+    """
+
+# INSERIR DADOS NA TABELA DA BASE DE DADOS
+"""Nome = input('Digite o seu nome: ')
+contacto = int(input('Digite o seu contacto: '))
+
+with sqlite3.connect(db) as conn:
+    cursor = conn.cursor()
+
+    cursor.execute('INSERT INTO alunos (nome, contacto) VALUES (?, ?)', (nome, contacto))
+
+    conn.commit()
+
+    print('Dados inseridos com sucesso!')"""
+
+# LER LINHAS DA TABELA DA BASE DE DADOS
+with sqlite3.connect(db) as conn:
+    cursor = conn.cursor()
+
+    cursor.execute('SELECT * FROM alunos')
+
+    dado = cursor.fetchone()
+
+print(f'ID: {dado[0]}\nNOME: {dado[1]}\nCONTACTO {dado[2]}')

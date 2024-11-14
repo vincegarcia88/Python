@@ -1,0 +1,115 @@
+"""Desenvolva uma aplicação gráfica que permite ao utilizador gerar passwords seguras.
+A interface deve incluir um campo para se definir o comprimento da password,
+com um intervalo entre 8 e 16 caracteres, e checkboxes para selecionar os tipos
+de caracteres desejados, como letras maiúsculas, minúsculas, números e símbolos.
+
+Após definir os critérios, o utilizador pode clicar num botão para gerar a password,
+que será exibida num campo de texto somente leitura. Além disso, deve haver um botão
+que permite copiar a password diretamente para a área de transferência."""
+
+import random  # For generating random characters
+import string  # For accessing character sets (digits, letters, symbols)
+import tkinter as tk  # For creating the GUI
+import pyperclip  # For copying text to the clipboard
+from tkinter import messagebox  # For displaying pop-up messages
+
+
+# Function to generate the password based on user settings
+def generate_password():
+    try:
+        # Get the password length from the input field and validate it
+        length = int(password_length.get())
+        if length <= 0:
+            # Show warning if the length is zero or negative
+            messagebox.showwarning("Error", "Password length must be greater than zero.")
+            return
+    except ValueError:
+        # Show warning if the input is not a valid integer
+        messagebox.showwarning("Error", "Please enter a valid number for password length.")
+        return
+
+    # Retrieve the settings for character inclusion
+    use_digits = digits_var.get()
+    use_uppercase = uppercase_var.get()
+    use_lowercase = lowercase_var.get()
+    use_symbols = symbols_var.get()
+
+    # Initialize an empty string to store potential characters
+    characters = ""
+    # Add characters to the pool based on user choices
+    if use_digits:
+        characters += string.digits
+    if use_uppercase:
+        characters += string.ascii_uppercase
+    if use_lowercase:
+        characters += string.ascii_lowercase
+    if use_symbols:
+        characters += string.punctuation
+
+    # Check if at least one character type is selected
+    if not characters:
+        messagebox.showwarning("Error", "Please select at least one character type.")
+        return
+
+    # Generate a random password with the selected characters and specified length
+    password = ''.join(random.choice(characters) for _ in range(length))
+
+    # Clear any existing text in the password entry field
+    password_entry.delete(0, tk.END)
+    
+    # Insert the newly generated password into the password entry field
+    password_entry.insert(0, password)
+
+
+# Function to copy the generated password to the clipboard
+def copy_to_clipboard():
+    # Get the password from the entry field
+    password = password_entry.get()
+    if password:
+        # If there's a password, copy it to the clipboard
+        pyperclip.copy(password)
+        messagebox.showinfo("Copy", "Password copied to clipboard.")
+    else:
+        # Show a warning if there’s no password to copy
+        messagebox.showwarning("Error", "Please generate a password first.")
+
+
+# Set up the main application window
+root = tk.Tk()
+root.title("Password Generator")  # Title for the window
+root.geometry("600x250")  # Set the window size to 600x250 pixels
+
+# Create and pack a label for password length input
+tk.Label(root, text="Password Length:").pack()
+
+# Create an entry widget for password length input with a default value of 16
+password_length = tk.Entry(root)
+password_length.insert(0, "16")  # Default length
+password_length.pack()
+
+# Create BooleanVar variables for each checkbox option (to track selections)
+digits_var = tk.BooleanVar()
+uppercase_var = tk.BooleanVar()
+lowercase_var = tk.BooleanVar()
+symbols_var = tk.BooleanVar()
+
+# Create checkboxes for each character type and pack them into the window
+tk.Checkbutton(root, text="Include Digits", variable=digits_var).pack()
+tk.Checkbutton(root, text="Include Uppercase Letters", variable=uppercase_var).pack()
+tk.Checkbutton(root, text="Include Lowercase Letters", variable=lowercase_var).pack()
+tk.Checkbutton(root, text="Include Symbols", variable=symbols_var).pack()
+
+# Create an entry widget to display the generated password
+password_entry = tk.Entry(root, width=30)
+password_entry.pack()
+
+# Button to trigger password generation
+generate_button = tk.Button(root, text="Generate Password", command=generate_password)
+generate_button.pack()
+
+# Button to copy the generated password to the clipboard
+copy_button = tk.Button(root, text="Copy to Clipboard", command=copy_to_clipboard)
+copy_button.pack()
+
+# Start the Tkinter event loop (this keeps the window open)
+root.mainloop()

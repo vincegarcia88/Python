@@ -1,0 +1,107 @@
+"""Desenvolva uma aplicação gráfica que permite ao utilizador gerar passwords seguras.
+A interface deve incluir um campo para se definir o comprimento da password,
+com um intervalo entre 8 e 16 caracteres, e checkboxes para selecionar os tipos
+de caracteres desejados, como letras maiúsculas, minúsculas, números e símbolos.
+
+Após definir os critérios, o utilizador pode clicar num botão para gerar a password,
+que será exibida num campo de texto somente leitura. Além disso, deve haver um botão
+que permite copiar a password diretamente para a área de transferência."""
+
+Kosta e Vinicius
+
+from tkinter import *
+from tkinter import ttk
+import string
+import random
+from tkinter import messagebox
+import pyperclip
+from tkinter.font import Font
+
+# Função para gerar a senha
+def gerar_senha():
+    comprimento = escala.get()  # Pega o comprimento da senha da barra de seleção
+    caracteres = " "
+    senha = ''.join(random.choice(caracteres) for _ in range(comprimento))
+    entrada_senha.delete(0, END)  # Limpa a entrada atual
+    entrada_senha.insert(0, senha)    # Insere a senha gerada
+    
+    # Verifica as opções e adiciona os tipos de caracteres selecionados
+    if digits_var.get():
+        caracteres += string.digits  # Adiciona números
+    if uppercase_var.get():
+        caracteres += string.ascii_uppercase  # Adiciona letras maiúsculas
+    if lowercase_var.get():
+        caracteres += string.ascii_lowercase  # Adiciona letras minúsculas
+    if symbols_var.get():
+        caracteres += string.punctuation  # Adiciona símbolos
+
+    if not caracteres:  # Caso nenhuma opção tenha sido marcada, usa letras e números por padrão
+        caracteres = string.ascii_letters + string.digits
+
+    senha = ''.join(random.choice(caracteres) for _ in range(comprimento))  # Gera a senha
+    entrada_senha.delete(0, END)  # Limpa a entrada atual
+    entrada_senha.insert(0, senha)  # Insere a senha gerada
+
+  
+def copiar_senha():
+    senha = entrada_senha.get()
+    pyperclip.copy(senha)
+    if senha:
+        # If there's a password, copy it to the clipboard
+        pyperclip.copy(senha)
+        messagebox.showinfo("Copiada", "Password copiado para a área de transferência")
+    else:
+        # Show a warning if there’s no password to copy
+        messagebox.showwarning("Erro", "É necessário gerar uma senha antes.")
+
+
+# Configuração da janela principal
+janela = Tk()
+janela.geometry("600x450")
+janela.title("Gerador de Senhas")
+janela.configure(bg="white")  # Definir o fundo da janela
+
+font_padrao = Font(family="Helvetica", size=12)
+font_bold = Font(family="Helvetica", size=12, weight="bold")
+
+# Label de instrução
+label_instrucao = Label(janela, text="  Escolha o comprimento da senha e clique em 'Gerar Senha'")
+label_instrucao.pack(pady=10)
+
+# Criação de uma outra Label e Barra de seleção do comprimento da senha
+label_instrucao_escala = Label(janela, text="Número de caracteres")
+label_instrucao_escala.pack()
+escala = Scale(janela, from_=8, to=16, orient='horizontal', 
+               activebackground="green", highlightbackground="black", 
+               troughcolor="lightblue", length=300, bg="black", 
+               fg="white", font=("ArialBlack"))
+escala.set(12)  # Comprimento padrão inicial
+escala.pack(padx=30, pady=10)
+
+# Campo de entrada para a senha gerada
+entrada_senha = Entry(janela, width=30, font=("Arial", 12))
+entrada_senha.pack(pady=10)
+
+# Botão para gerar a senha
+botao_gerar = Button(janela, text="Gerar Senha", command=gerar_senha, 
+                     font=font_bold, bg="green", fg="white", relief="flat", bd=5)
+botao_gerar.pack(pady=10)
+
+digits_var = BooleanVar()
+uppercase_var = BooleanVar()
+lowercase_var = BooleanVar()
+symbols_var = BooleanVar()
+
+numBtn = Checkbutton (janela, text="Números", variable=digits_var).pack()
+upperBtn = Checkbutton (janela, text="Letras Maiúsculas", variable=uppercase_var).pack()
+lowerBtn = Checkbutton (janela, text="Letras Minúsculas", variable=lowercase_var).pack()
+symbolsBtn = Checkbutton (janela, text="Símbolos", variable=symbols_var).pack()
+
+#Botão para copiar a password
+copy_btn = Button(janela, text="Copiar password", command=copiar_senha, 
+                  font=font_bold, bg="green", fg="white", relief="flat", bd=5)
+copy_btn.pack(pady=10)
+
+
+# Iniciar o loop principal do Tkinter
+janela.mainloop()

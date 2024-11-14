@@ -1,0 +1,69 @@
+from tkinter import *
+from tkinter import ttk
+
+#Criar funções
+def aumenta_janela(janela):
+    janela.geometry("600x400")
+
+def janela_login():
+    global janela
+    janela_login = Tk()
+    janela_login.geometry("300x300")
+    janela_login.title("Login")
+    btn= ttk.Button(janela_login, text="Fechar", command=janela.destroy)
+    janela_login.mainloop()
+
+#Cria a janela
+janela = Tk ()
+janela.geometry("600x400")
+janela.title("Olá pessoas")
+
+nome_lbl = ttk.Label(janela, text="Nome ", background ="midnightblue")
+nome_lbl.grid(column=0, row=0, columnspan = 1, sticky="W")
+
+idade_lbl = ttk.Label(janela, text="Idade ", background="white")
+idade_lbl.grid(row=0, column=1)
+
+#Criar botão
+nome_btn = ttk.Button(janela, text="nome", command=janela.destroy)
+nome_btn.grid(column= 0, row=1)
+
+login_btn = ttk.Button(janela, text="Login", command=janela_login)
+login_btn.grid(column=1, row=1)
+
+janela.mainloop()
+print("Programa terminado")
+______________________________________________________________________________
+
+"""Idealize um sistema com o tkinter que permita ao utilizador inserir 
+uma imagem em JPEG para converter para PNG"""
+
+"""tkdocs.com
+https://tkdocs.com/tutorial/widgets.html"""
+
+#Como usar o Tkinter
+
+#Primeiro passo - Importar
+from tkinter import *
+from tkinter import ttk
+
+#Cria a janela
+janela = Tk () """Cria a janela principal""" #Tk é uma classe, por isso o T maiúsculo
+janela.mainloop() """Mantém a janela aberta e aguardando interações do utilizador"""
+
+janela.title("Isto é um título") """Define o titulo da janela"""
+janela.geometry("800x600") """define a largura e altura da janela em pixels"""
+
+nomelbl = ttk.Label (janela, text="nomelbl") """Cria a label"""
+nomelbl.grid(column=0 row=0, columnspan=1, sticky="W") """Posiciona a label na GUI"""
+#Columnspan é quanto espaço ele vai ocupar, Rowspan a mesma coisa.
+
+janela_estilo = ttk.Style()
+janela_estilo.configure ("Danger.TFrame", background="blue", borderwidth=5, relief="raised")
+
+label = ttk.Label(janela, text="Full Name")
+label.grid(column=0, row=0, columnspan=3)
+
+nomebtn= ttk.Button(janela, text="Clique Aqui", command=funcao) #criar botão
+
+check = ttk.Checkbutton(janela, text="Aceito os termos") #Criar check button

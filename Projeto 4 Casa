@@ -1,0 +1,36 @@
+"""Crie um sistema de login com o Tkinter que permite registrar e autenticar
+utilizadores, mostrando uma nova janela com o logotipo do Python após um login bem-sucedido.
+
+Use bcrypt para o hash de passwords e armazene-as numa base de dados SQLite. 
+
+Implemente um sistema de bloqueio que, 
+após 3 tentativas de login falhadas, impede novos acessos ao utilizador."""
+
+import tkinter as tk 
+from tkinter import *
+import bcrypt
+import Font
+
+#Criando a janela
+janela = Tk()
+janela.title("Projeto Login - Password")
+janela.geometry("600x400")
+janela.configure(bg="black")
+
+#Criando a label de instrução
+label_instrucao = Label (janela, text="Preencha seus dados", bg="black", fg="white", font=("Helvetica", 10, "bold"))
+label_instrucao.pack(pady = 20)
+
+#Criando espaço para input
+login_input = Entry(janela, highlightthickness=5)
+login_input.pack(pady = 10)
+
+#Criando espaço para senha
+senha_input = Entry(janela, highlightthickness= 5)
+senha_input.pack(pady = 10)
+
+#Criando o botão de acessar o site
+acesso_botao = Button(janela, text="Acessar", bg="midnightblue", fg="white", font=("Helvetica", 12, "bold"), bd=10)
+acesso_botao.pack (padx=10,pady=20)
+
+janela.mainloop()

@@ -1,0 +1,181 @@
+#Trabalho Hashing
+
+import customtkinter as ctk
+from tkinter import messagebox
+import sqlite3
+import bcrypt
+from CTkMessagebox import CTkMessagebox
+
+db = "Base_Dados_Logo.db"
+conn = sqlite3.connect(db)
+cursor = conn.cursor()
+
+# Criação base de dados SQL
+def Criar_Base_Dados():
+    cursor.execute("""CREATE TABLE IF NOT EXISTS Utilizadores (
+                   username TEXT PRIMARY KEY,
+                   password TEXT NOT NULL,
+                   tentativas_falhadas INTEGER DEFAULT 0
+                   )""")
+    conn.commit()
+
+class LoginSystem:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Sistema de Login")
+        self.root.geometry("500x500")
+        ctk.set_appearance_mode("Dark")
+        ctk.set_default_color_theme("dark-blue")
+
+        # Define o número máximo de tentativas falhadas de login
+        self.limite_tentativas_falhadas = 3
+        self.menu_login()
+
+    # Cria o ecrã de login
+    def menu_login(self):
+        self.limpar_ecra()  # Clear any existing widgets in the window
+
+        # Frame to organize login layout
+        janela_login = ctk.CTkFrame(self.root, corner_radius=10)
+        janela_login.pack(pady=20, padx=20, fill="both", expand=True)
+
+        ctk.CTkLabel(janela_login, text="Login", font=("Arial", 24)).pack(pady=20)
+
+        # Input fields for username and password
+        self.username_var = ctk.StringVar()
+        self.password_var = ctk.StringVar()
+
+        ctk.CTkLabel(janela_login, text="Nome de Utilizador").pack(pady=5)
+        self.username_entry = ctk.CTkEntry(janela_login, textvariable=self.username_var, width=200)
+        self.username_entry.pack(pady=5)
+
+        ctk.CTkLabel(janela_login, text="Password").pack(pady=5)
+        self.password_entry = ctk.CTkEntry(janela_login, textvariable=self.password_var, show="*", width=200)
+        self.password_entry.pack(pady=5)
+
+        # Butões para fazer login e navegar para o ecrã de registo
+        ctk.CTkButton(janela_login, text="Login", command=self.login).pack(pady=10)
+        ctk.CTkButton(janela_login, text="Registar", command=self.menu_registo).pack()
+
+    # Função que cria o ecrã de registo
+    def menu_registo(self):
+        self.limpar_ecra()
+
+        # Frame to organize registration layout
+        janela_registo = ctk.CTkFrame(self.root, corner_radius=10)
+        janela_registo.pack(pady=20, padx=20, fill="both", expand=True)
+
+        ctk.CTkLabel(janela_registo, text="Registo", font=("Arial", 24)).pack(pady=20)
+
+        # Inputs para nome de utilizador e password
+        self.novo_username = ctk.StringVar()
+        self.nova_password = ctk.StringVar()
+
+        ctk.CTkLabel(janela_registo, text="Username").pack(pady=5)
+        self.new_username_entry = ctk.CTkEntry(janela_registo, textvariable=self.novo_username, width=200)
+        self.new_username_entry.pack(pady=5)
+
+        ctk.CTkLabel(janela_registo, text="Password").pack(pady=5)
+        self.new_password_entry = ctk.CTkEntry(janela_registo, textvariable=self.nova_password, show="*", width=200)
+        self.new_password_entry.pack(pady=5)
+
+        # Butões para registar e navegar de volta para o menu principal
+        ctk.CTkButton(janela_registo, text="Registar", command=self.register).pack(pady=10)
+        ctk.CTkButton(janela_registo, text="Voltar ao Menu Principal", command=self.menu_login).pack()
+
+    def limpar_ecra(self):
+        # Limpa quaisquer widgets no ecrã para prevenir erros
+        for widget in self.root.winfo_children():
+            widget.destroy()
+
+    # Função que lida com os registos
+    def register(self):
+        username = self.novo_username.get()
+        password = self.nova_password.get()
+
+        # Verificar espaços em branco
+        if not username or not password:
+            CTkMessagebox(title="Erro!", message="Tem de preencher todos os campos!").get()
+            return
+
+        # Hashear a password
+        hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+
+        # Código que insere (se possível) o utilizador na base de dados
+        try:
+            cursor.execute("INSERT INTO Utilizadores (username, password) VALUES (?, ?)", (username, hashed_password))
+            conn.commit()
+            CTkMessagebox(title="Sucesso!", message="Registo feito com sucesso!").get()
+            
+            # Redireciona para o menu de login
+            self.menu_login()
+        except sqlite3.IntegrityError:
+            CTkMessagebox(title="Erro!", message="O nome do utilizador já existe.").get()
+
+    # Função que trata do processo de login
+    def login(self):
+        username = self.username_var.get()
+        password = self.password_var.get()
+
+        # Verificação se os campos estão em branco
+        if not username or not password:
+            CTkMessagebox(title="Erro!", message="Tem de preencher todos os campos!").get()
+            return
+
+        # Recolha dos dados do utilizador
+        cursor.execute("SELECT password, tentativas_falhadas FROM Utilizadores WHERE username = ?", (username,))
+        user = cursor.fetchone()
+
+        if user:
+            hashed_password, tentativas_falhadas = user
+
+            # Verificar se a conta está bloqueada
+            if tentativas_falhadas >= self.limite_tentativas_falhadas:
+                CTkMessagebox(title="Erro!", message="Conta bloqueada devido a demasiadas tentativas incorretas.").get()
+                return
+
+            # Comparação entre a password inserida e a password na base de dados
+            if bcrypt.checkpw(password.encode(), hashed_password):
+                # Reset das tentativas falhadas após conseguir dar login (não funciona se a conta já estiver bloqueada)
+                cursor.execute("UPDATE Utilizadores SET tentativas_falhadas = 0 WHERE username = ?", (username,))
+                conn.commit()
+                self.show_dashboard()  # Show the dashboard upon successful login
+            else:
+                # Incrementação de tentativas falhadas
+                tentativas_falhadas += 1
+                cursor.execute("UPDATE Utilizadores SET tentativas_falhadas = ? WHERE username = ?", (tentativas_falhadas, username))
+                conn.commit()
+                tentativas_restantes = self.limite_tentativas_falhadas - tentativas_falhadas
+                CTkMessagebox(title="Erro!", message= f"Credênciais inválidas. {tentativas_restantes} tentativas restantes.").get()
+        else:
+            # Utilizador não encontrado
+            CTkMessagebox(title="Erro!", message="Utilizador não encontrado.").get()
+
+    # Mostrar o menu de boas vindas (com a imagem)
+    def show_dashboard(self):
+        import os
+        from PIL import Image
+
+        self.limpar_ecra()
+
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        image_path = os.path.join(script_dir, "python-logo.png")
+
+        dashboard_frame = ctk.CTkFrame(self.root, corner_radius=10)
+        dashboard_frame.pack(pady=20, padx=20, fill="both", expand=True)
+
+        ctk.CTkLabel(dashboard_frame, text="Seja Bem-vindo!", font=("Arial", 24)).pack(pady=20)
+        
+        try:
+            image = ctk.CTkImage(light_image=Image.open(image_path),
+                             size=(150,150))
+            ctk.CTkLabel(dashboard_frame, text="", image=image).pack()
+        
+        except FileNotFoundError:
+            CTkMessagebox(title="Erro!", text="Imagem não encontrada no diretório!").get()
+
+# Correr a aplicação
+Criar_Base_Dados()
+root = ctk.CTk()
+app = LoginSystem(root)
+root.mainloop()
